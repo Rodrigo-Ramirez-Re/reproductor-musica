@@ -31,30 +31,64 @@ class FetchWrapper {
     }
 }
 
+
+/* API */
 const API = new FetchWrapper("https://discoveryprovider.audius.co");
 
+/* elements */
 const songImg = document.querySelector("#song-img");
-const songTitle = document.querySelector("#song-Title"); 
-const songAuthor = document.querySelector("#song-Track");
-const songTrack = document.querySelector("#song-Track");
-const trackPlaceholder = document.querySelector("#bar-placeholder");
+const songTitle = document.querySelector("#song-title"); 
+const songAuthor = document.querySelector("#song-author");
+const songTrack = document.querySelector("#song-track");
+const songNext = document.querySelector("#song-next");
+const songBefore = document.querySelector("#song-before");
+const imgPlaceholder = document.querySelector(".img-placeholder");
+
+
+
+/* song number */
 let initialSong = 0;
 
 const getSongInfo = async () => {
     
     try {
+
         
-        const response = await API.get("/v1/tracks/trending?app_name=ReproductorMusica");
-        const tracks = await response.json();
-        trackPlaceholder.classList.remove("bar-placeholder")
-        songTrack.setAttribute("src", `https://discoveryprovider.audius.co/v1/tracks/${tracks[initialSong].id}/stream`);
-        console.log(tracks[initialSong].id);
+        /* Getting Data */
+        const tracks = await API.get("/v1/tracks/trending?app_name=ReproductorMusica");
+        songTrack.setAttribute("src", `https://discoveryprovider.audius.co/v1/tracks/${tracks.data[initialSong].id}/stream`);
+        songImg.setAttribute("src", tracks.data[initialSong].artwork["480x480"]);
+        songTitle.textContent = tracks.data[initialSong].title;
+        songAuthor.textContent = tracks.data[initialSong].user.name;
+
+        songImg.classList.remove("hide");
+        imgPlaceholder.classList.remove("img-placeholder");
+
         
-    } catch(error) {
+    } catch (error) {
 
         console.error(error);
-    }
     
+    }
+    console.log(imgPlaceholder);
 }
 
-trackPlaceholder.classList.toggle("bar-placeholder");
+
+songNext.addEventListener("click", () => {
+    songImg.classList.add("hide");
+    imgPlaceholder.classList.add("img-placeholder");
+    initialSong += 1;
+    getSongInfo();
+});
+
+songBefore.addEventListener("click", () => {
+    if(initialSong !== 0) {
+        initialSong -= 1;
+    }
+    songImg.classList.add("hide");
+    imgPlaceholder.classList.add("img-placeholder");
+    getSongInfo();
+});
+
+
+getSongInfo();
